@@ -96,7 +96,9 @@ int over = 0;
 int past1 = 0;
 int past2 = 0;
 int counter = 0;
+int counterprt = 0;
 int countermem = 0;
+int lastcountermem = 0;
 int countervalue = 10000000;  // Time to get out of decodebuff subroutine
 uint8_t dw = 0;   //diagnostics
 uint8_t dbug = 1;  //debugging
@@ -278,6 +280,9 @@ void loop() {
   counter = counter + 1;
   if ((!rd) && (counter < countervalue)) return; //IFrD counter
   countermem = counter;
+  countermem = ((countermem + lastcountermem) / 2); // average the counter
+  lastcountermem = countermem;
+  counterprt = counter;
   counter = 0;
   if (rd == 3) {
     rd = 4;
@@ -312,29 +317,30 @@ void loop() {
       imports = lastimports;
       statusFlag = lastsFlag;
     }
-    if (currenthour == 0 && currentminute == 1 && past1 == 0) {
-      sodexports = exports;
-      past1 = 1;
+    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 3 ) && (past1 == 0)) {
+      if (sodexports != exports) sodexports = exports;
+      past1 = 1;     
     }
-    if (currenthour == 0 && currentminute == 2 && past1 == 1) past1 = 0;
+    if ((currenthour == 0) && (currentminute > 3) && (past1 == 1)) past1 = 0;
 
-    if (currenthour == 0 && currentminute == 1 && past2 == 0) {
-      sodimports = imports;
+    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <=3 ) && (past2 == 0)) {
+      if (sodimports != imports) sodimports = imports;
       past2 = 1;
     }
-    if (currenthour == 0 && currentminute == 2 && past2 == 1) past2 = 0;
+    if ((currenthour == 0) && (currentminute > 3) && (past2 == 1)) past2 = 0;
 
 
-    if (sodexports == 0) {
+    if ((sodexports == 0) && (exports != lastexports)) {
       incexports = exports - lastexports;
       todayexports = todayexports + incexports;
     }
-    if (sodimports == 0) {
+    if ((sodimports == 0) && (imports != lastimports)) {
       incimports = imports - lastimports;
       todayimports = todayimports + incimports;
     }
-    if (sodexports != 0) todayexports = exports - sodexports;
-    if (sodimports != 0) todayimports = imports - sodimports;
+    
+    if ((sodexports != 0) && (exports != sodexports)) todayexports = exports - sodexports;
+    if ((sodimports != 0) && (imports != sodimports)) todayimports = imports - sodimports;
 
     lastimports = imports;
     lastexports = exports;
@@ -357,7 +363,7 @@ void loop() {
       Serial.print("Exports Today IFrD: ");
       Serial.print(todayexports, 1);
       Serial.println(" kWh");
-      Serial.println(countermem);
+      Serial.println(counterprt);
       Serial.println(" ");
     }
   }
@@ -387,7 +393,7 @@ void loop() {
   if (currentminute == 50 && over == 0) sendGET();
   if (currentminute > 50 && currentminute < 55 && over == 1) over = 0;
   if (currentminute == 55 && over == 0) sendGET();
-  if (currentminute > 55 && currentminute < 59 && over == 1) over = 0;
+  if (currentminute > 55 && currentminute <= 59 && over == 1) over = 0;
 
   if (dbug) Serial.println(" "), digitalClockDisplay();
 }
@@ -566,4 +572,3 @@ void print2digits(int number) {  // used for RTC module to append '0' to single 
   }
   if (dbug) Serial.print(number);
 }
-
