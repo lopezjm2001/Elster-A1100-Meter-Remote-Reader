@@ -177,6 +177,8 @@ void meterupdate() {
   if ((done == 0) && (currenthour == 23) && (currentminute > 50)) {
     pulseCountexp = 1;
     pulseCountimp = 1;
+    TotalkWhimp = 1;
+    TotalkWhexp = 1;
     done = 1;
     firstread = 0;
   }
@@ -317,30 +319,30 @@ void loop() {
       imports = lastimports;
       statusFlag = lastsFlag;
     }
-    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 3 ) && (past1 == 0)) {
-      if (sodexports != exports) sodexports = exports;
+    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 5) && (past1 == 0)) {
+      sodexports = exports;
       past1 = 1;     
     }
-    if ((currenthour == 0) && (currentminute > 3) && (past1 == 1)) past1 = 0;
+    if ((currenthour == 0) && (currentminute > 5) && (past1 == 1)) past1 = 0;
 
-    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <=3 ) && (past2 == 0)) {
-      if (sodimports != imports) sodimports = imports;
+    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 5) && (past2 == 0)) {
+      sodimports = imports;
       past2 = 1;
     }
-    if ((currenthour == 0) && (currentminute > 3) && (past2 == 1)) past2 = 0;
+    if ((currenthour == 0) && (currentminute > 5) && (past2 == 1)) past2 = 0;
 
 
-    if ((sodexports == 0) && (exports != lastexports)) {
+    if ((sodexports == 0) && (exports != lastexports)) {  // first run 
       incexports = exports - lastexports;
       todayexports = todayexports + incexports;
     }
-    if ((sodimports == 0) && (imports != lastimports)) {
+    if ((sodimports == 0) && (imports != lastimports)) {  // first run
       incimports = imports - lastimports;
       todayimports = todayimports + incimports;
     }
     
-    if ((sodexports != 0) && (exports != sodexports)) todayexports = exports - sodexports;
-    if ((sodimports != 0) && (imports != sodimports)) todayimports = imports - sodimports;
+    if (sodexports != 0) todayexports = exports - sodexports;
+    if (sodimports != 0) todayimports = imports - sodimports;
 
     lastimports = imports;
     lastexports = exports;
