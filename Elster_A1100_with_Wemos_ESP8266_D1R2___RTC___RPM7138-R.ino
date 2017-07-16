@@ -92,7 +92,6 @@ uint8_t pSum = 0;
 uint16_t BCC = 0;
 uint8_t eom = 1;
 int over = 0;
-
 int past1 = 0;
 int past2 = 0;
 int counter = 0;
@@ -174,11 +173,11 @@ void sendGET() // send data to www.pvoutput.org
 void meterupdate() {
   cli();   //disable interrupts  // Reset KWH at end of day.
   readRTC();
-  if ((done == 0) && (currenthour == 23) && (currentminute > 50)) {
+  if ((done == 0) && (currenthour == 23) && (currentminute > 50)) {  // Reset for start of a new day.
     pulseCountexp = 1;
     pulseCountimp = 1;
-    TotalkWhimp = 1;
-    TotalkWhexp = 1;
+    TotalkWhimp = 0.001;
+    TotalkWhexp = 0.001;
     done = 1;
     firstread = 0;
   }
@@ -293,22 +292,18 @@ void loop() {
       imports = lastimports;
       exports = lastexports;
     }
-
     if (lastimports == 0) lastimports = imports;
-
     if (imports > (lastimports + 40)) {  //filter
       imports = lastimports;  
       exports = lastexports;
       statusFlag = lastsFlag;
     }
-
     if (imports < 0)  {         //filter
       imports = lastimports;
       exports = lastexports;
       statusFlag = lastsFlag;
     }
     if (lastexports == 0) lastexports = exports;
-
     if (exports > (lastexports + 40)) {  //filter
       exports = lastexports;
       imports = lastimports;
@@ -319,19 +314,16 @@ void loop() {
       imports = lastimports;
       statusFlag = lastsFlag;
     }
-    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 5) && (past1 == 0)) {
+    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 5) && (past1 == 0)) {    //  Reset of start of a new day
       sodexports = exports;
       past1 = 1;     
     }
     if ((currenthour == 0) && (currentminute > 5) && (past1 == 1)) past1 = 0;
-
-    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 5) && (past2 == 0)) {
+    if ((currenthour == 0) && (currentminute >= 0) && (currentminute <= 5) && (past2 == 0)) {     // Reset of start of a new day
       sodimports = imports;
       past2 = 1;
     }
     if ((currenthour == 0) && (currentminute > 5) && (past2 == 1)) past2 = 0;
-
-
     if ((sodexports == 0) && (exports != lastexports)) {  // first run 
       incexports = exports - lastexports;
       todayexports = todayexports + incexports;
@@ -339,15 +331,12 @@ void loop() {
     if ((sodimports == 0) && (imports != lastimports)) {  // first run
       incimports = imports - lastimports;
       todayimports = todayimports + incimports;
-    }
-    
+    }    
     if (sodexports != 0) todayexports = exports - sodexports;
     if (sodimports != 0) todayimports = imports - sodimports;
-
     lastimports = imports;
     lastexports = exports;
     lastsFlag = statusFlag;
-
     if (dbug) {
       Serial.println("");
       Serial.print("Total Import IFrD: ");
@@ -396,7 +385,6 @@ void loop() {
   if (currentminute > 50 && currentminute < 55 && over == 1) over = 0;
   if (currentminute == 55 && over == 0) sendGET();
   if (currentminute > 55 && currentminute <= 59 && over == 1) over = 0;
-
   if (dbug) Serial.println(" "), digitalClockDisplay();
 }
 //--------------------------------------------------------------------------------------------------------------------
@@ -529,13 +517,9 @@ void printDigits(int digits)//timeclock
 //--------------------------------------------------------------------------------------------------------------------
 void readRTC()
 {
-
   tmElements_t tm;
-
-
   if (RTC.read(tm))
   {
-
     currenthour = (tm.Hour); // set global variable to current time (hours)
     currentminute = (tm.Minute); // set global variable to current time (minutes)
     currentsecond = (tm.Second); // set global variable to current time (minutes)
@@ -543,9 +527,7 @@ void readRTC()
     currentday = (tm.Day); // set global variable to current (date as number)
     currentmonth = (tm.Month); // set global variable to current  (month as a number)
     currentyear =  (tmYearToCalendar(tm.Year));
-
     //    digitalWrite(errorled, LOW);
-
   }
   else
   {
