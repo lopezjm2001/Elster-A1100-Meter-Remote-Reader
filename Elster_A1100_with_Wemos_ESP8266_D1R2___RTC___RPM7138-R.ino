@@ -251,6 +251,8 @@ void heartbeat() {
 }
 //--------------------------------------------------------------------------------------------------------------------
 void setup() {
+  ESP.wdtDisable();
+  ESP.wdtEnable(20000);
   attachInterrupt(digitalPinToInterrupt(12), onPulse, FALLING);  // Pulsed output KWH interrupt attached to D6 = GPIO 12
   attachInterrupt(digitalPinToInterrupt(13), onPulseRPM7138, RISING); // D7 = GPIO 13  RPM7138-R
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize HEARTBEAT
@@ -386,6 +388,7 @@ void loop() {
   if (currentminute == 55 && over == 0) sendGET();
   if (currentminute > 55 && currentminute <= 59 && over == 1) over = 0;
   if (dbug) Serial.println(" "), digitalClockDisplay();
+  ESP.wdtFeed();
 }
 //--------------------------------------------------------------------------------------------------------------------
 static int decode_buff(void) {    // Infrared sensor RPM7138-R
@@ -556,3 +559,4 @@ void print2digits(int number) {  // used for RTC module to append '0' to single 
   }
   if (dbug) Serial.print(number);
 }
+
