@@ -1,4 +1,6 @@
+
 /**
+  Added watchdog timer changes 1/9/2017.
   You can see details of this project at https://wordpress.com/read/feeds/68572272/posts/1524193538
   This project uses a Wemos ESP8266 D1R2 from ebay http://www.ebay.com.au/itm/WeMos-D1-R2-Latest-ESP-12E-WiFi-ESP8266-Board-Arduino-IDE-Uno-SYDNEY/272385909659?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649
   This project is based on https://pedrosnotes.wordpress.com/ which uses an Arduino UNO.
